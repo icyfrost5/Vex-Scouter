@@ -91,7 +91,7 @@ def get_team_data(event_data):
 
         def get_highest(session2, nurl):
             try:
-                resp = session2.get(nurl, headers=Headers, timeout=15)
+                resp = session2.get(nurl, headers=Headers, timeout=Timeout)
                 if not resp.text.strip():
                     return 0
                 json_data = resp.json()
@@ -213,4 +213,5 @@ if __name__ == "__main__":
     edata = get_teams(URL)
     tdata = get_team_data(edata)
     save_teams_to_excel(edata, tdata, Filename)
+
 
