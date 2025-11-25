@@ -3,4 +3,4 @@ Grabs Vex V5RC team's ids, team numbers, team names, Organization, Grade level, 
 
 
 # In Main.py edit the {INSERT YOUR API KEY HERE} with your robotevents.com api key open the requirements downloader and then open start.bat
-- ps. don't do a lot in quick succession or your going to get rate limited
+- ps. don't do a lot in quick succession or you're going to get rate limited
