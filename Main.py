@@ -55,7 +55,7 @@ def get_teams(url):
     return None
 
 def get_best_ranking(team_id):
-    url = f"https://www.robotevents.com/api/v2/teams/{team_id}/rankings?season%5B%5D=127"
+    url = f"https://www.robotevents.com/api/v2/teams/{team_id}/rankings?season%5B%5D=197"
 
     best_rank = None
 
@@ -84,7 +84,7 @@ def get_team_data(event_data):
         nsession = requests.Session()
         nsession.headers.update(Headers)
 
-        base = f"https://www.robotevents.com/api/v2/teams/{t_id}/skills?season%5B%5D=127"
+        base = f"https://www.robotevents.com/api/v2/teams/{t_id}/skills?season%5B%5D=197"
         skills_total = base
         skills_driver = base + "&type%5B%5D=driver"
         skills_programming = base + "&type%5B%5D=programming"
@@ -213,5 +213,6 @@ if __name__ == "__main__":
     edata = get_teams(URL)
     tdata = get_team_data(edata)
     save_teams_to_excel(edata, tdata, Filename)
+
 
 
