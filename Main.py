@@ -162,7 +162,7 @@ def save_teams_to_excel(event_data, team_data, filename):
     worksheet.append([
         "Team ID", "Team Number", "Team Name", "Organization", "Grade", "Location",
         "Highest Total Skills Score", "Highest Driver", "Highest Programming",
-        "Best Rank", "Awards"
+        "Best Rank at a Tournement", "Awards"
     ])
 
     td_map = {t["team_id"]: t for t in team_data}
@@ -213,6 +213,7 @@ if __name__ == "__main__":
     edata = get_teams(URL)
     tdata = get_team_data(edata)
     save_teams_to_excel(edata, tdata, Filename)
+
 
 
 
