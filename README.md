@@ -5,8 +5,6 @@ all I kindly ask is for credit if you plan to copy this
 
 
 # In Main.py edit the {INSERT YOUR API KEY HERE} with your robotevents.com api key open the requirements downloader and then open start.bat
-- ps. don't do a lot in quick succession or you're going to get rate limited and I didn't add handling for it. (error at edata/tdata where it fails to get the json)
-
 
 # How to use (assuming you have set it up correctly):
 
