@@ -10,12 +10,13 @@ URL = input("Enter the URL of the webpage: ")
 Filename = input("What do you want the Excel worksheet's file name to be? ")
 Headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer {INSERT YOUR API KEY HERE}'
+    'Authorization': '{INSERT YOUR API KEY HERE}'
 }
 Request_Delay = (2, 15)
 Max_Match_Results = 10
 Retrys = 5
 Timeout = 15
+
 
 def get_all_teams(eventid):
     all_teams = []
@@ -26,6 +27,12 @@ def get_all_teams(eventid):
         url += f"&page={page}"
 
         response = requests.get(url, headers=Headers)
+        if response.status_code == 429:
+            while True:
+                time.sleep(Timeout)
+                response = requests.get(url, headers=Headers)
+                if response.status_code == 200:
+                    break
         json_data = response.json()
         all_teams.extend(json_data["data"])
         if json_data["meta"]["current_page"] >= json_data["meta"]["last_page"]:
@@ -33,36 +40,52 @@ def get_all_teams(eventid):
         page += 1
     return all_teams
 
+
 def get_teams(url):
     attempts = 0
     while attempts < Retrys:
-        session = requests.Session()
-        session.headers.update(Headers)
+        attempts+=1
+        sessiona = requests.Session()
+        sessiona.headers.update(Headers)
         print("")
         event_code = url.split("/")[-1].split(".")[0]
         print(event_code)
         eventcodelink = f'https://www.robotevents.com/api/v2/events?sku[]={event_code}'
-        eventcode = session.get(eventcodelink)
-        json_data = eventcode.json()
-        data_table = json_data["data"][0]
-        eventid = data_table["id"]
-        print(f'The event id is {eventid}')
-        data = get_all_teams(eventid)
-        if data:
-            print("Successfully got event data")
-            print("Getting all team data, may take a while (depends on how many teams there are)")
-            return data
+        eventcode = sessiona.get(eventcodelink)
+        if eventcode.status_code == 200:
+            json_data = eventcode.json()
+            data_table = json_data["data"][0]
+            eventid = data_table["id"]
+            print(f'The event id is {eventid}')
+            data = get_all_teams(eventid)
+            if data:
+                print("Successfully got event data")
+                print("Getting all team data, may take a while (depends on how many teams there are)")
+                return data
+        else:
+            print(f"Failed to get 200 status code in {attempts} attempts.")
     return None
+
 
 def get_best_ranking(team_id):
     url = f"https://www.robotevents.com/api/v2/teams/{team_id}/rankings?season%5B%5D=197"
 
     best_rank = None
-
     while True:
-        response = requests.get(url, Headers).json()
+        response = requests.get(url, Headers)
+        if response.status_code == 429:
+            while True:
+                time.sleep(Timeout)
+                response = requests.get(url, Headers)
+                if response.status_code == 200:
+                    break
+        try:
+            response = response.json()
+        except:
+            response = {"data": [], "meta": {}}
+        if not isinstance(response, dict):
+            response = {"data": [], "meta": {}}
         data = response.get("data", [])
-
         for r in data:
             rank = r.get("rank")
             if rank is not None:
@@ -74,6 +97,7 @@ def get_best_ranking(team_id):
         url = next_page
 
     return best_rank
+
 
 def get_team_data(event_data):
     results = []
@@ -92,10 +116,18 @@ def get_team_data(event_data):
         def get_highest(session2, nurl):
             try:
                 resp = session2.get(nurl, headers=Headers, timeout=Timeout)
+                if resp.status_code == 429:
+                    while True:
+                        time.sleep(Timeout)
+                        resp = session2.get(nurl, headers=Headers, timeout=Timeout)
+                        if resp.status_code == 200:
+                            break
                 if not resp.text.strip():
                     return 0
                 json_data = resp.json()
             except Exception:
+                return 0
+            if not isinstance(json_data, dict):
                 return 0
             runs = json_data.get("data", [])
             if not runs:
@@ -104,18 +136,26 @@ def get_team_data(event_data):
 
         highest_driver = get_highest(nsession, skills_driver)
         highest_programming = get_highest(nsession, skills_programming)
-        total = highest_driver+highest_programming
-        
+        total = highest_driver + highest_programming
+
         awards = []
         url = f"https://www.robotevents.com/api/v2/teams/{t_id}/awards?season=197&per_page=250"
         while True:
             try:
                 aj = nsession.get(url, headers=Headers, timeout=Timeout)
+                if aj.status_code == 429:
+                    while True:
+                        time.sleep(Timeout)
+                        aj = nsession.get(url, headers=Headers, timeout=Timeout)
+                        if aj.status_code == 200:
+                            break
                 if not aj.text.strip():
                     aj_json = {"data": [], "meta": {}}
                 else:
                     aj_json = aj.json()
             except Exception:
+                aj_json = {"data": [], "meta": {}}
+            if not isinstance(aj_json, dict):
                 aj_json = {"data": [], "meta": {}}
             for a in aj_json.get("data", []):
                 awards.append(a.get("title", ""))
@@ -129,11 +169,18 @@ def get_team_data(event_data):
         while True:
             try:
                 rj = nsession.get(url, headers=Headers, timeout=Timeout)
+                if rj.status_code == 429:
+                    time.sleep(Timeout)
+                    rj = nsession.get(url, headers=Headers, timeout=Timeout)
+                    if rj.status_code == 200:
+                        break
                 if not rj.text.strip():
                     rj_json = {"data": [], "meta": {}}
                 else:
                     rj_json = rj.json()
             except Exception:
+                rj_json = {"data": [], "meta": {}}
+            if not isinstance(rj_json, dict):
                 rj_json = {"data": [], "meta": {}}
             for r in rj_json.get("data", []):
                 rk = r.get("rank")
@@ -209,12 +256,8 @@ def save_teams_to_excel(event_data, team_data, filename):
 
     workbook.save(f'{filename}.xlsx')
 
+
 if __name__ == "__main__":
     edata = get_teams(URL)
     tdata = get_team_data(edata)
     save_teams_to_excel(edata, tdata, Filename)
-
-
-
-
-
