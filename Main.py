@@ -1,10 +1,6 @@
-import os.path
 import requests
 import time
-import random
-import json
 from openpyxl import Workbook
-from requests import session
 
 URL = input("Enter the URL of the webpage: ")
 Filename = input("What do you want the Excel worksheet's file name to be? ")
@@ -261,4 +257,5 @@ if __name__ == "__main__":
     edata = get_teams(URL)
     tdata = get_team_data(edata)
     save_teams_to_excel(edata, tdata, Filename)
+
 
