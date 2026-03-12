@@ -12,8 +12,7 @@ all I kindly ask is for credit if you plan to copy this
 - choose the name you want the Excel file to be named
 - wait
 - It gathers all the data for you and organizes it into an excel file in the same directory as main.py
-
-
+#
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
 This work is licensed under a
